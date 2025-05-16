@@ -1,0 +1,54 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+
+  'jvh.auto_cleaning.member':
+    class: JvH\JvHAutoCleaningBundle\Factory\FrontendUserAutoCleanFactory
+    public: true
+  JvH\JvHAutoCleaningBundle\FrontendUserCleaners\IsotopeOrders:
+    tags:
+      - { name: 'jvh.auto_cleaning.member.task', priority: 0}
+  JvH\JvHAutoCleaningBundle\FrontendUserCleaners\PackagingSlips:
+    tags:
+      - { name: 'jvh.auto_cleaning.member.task', priority: 0 }
+  JvH\JvHAutoCleaningBundle\FrontendUserCleaners\IsotopeRuleUsage:
+    tags:
+      - { name: 'jvh.auto_cleaning.member.task', priority: 0 }
+  JvH\JvHAutoCleaningBundle\FrontendUserCleaners\AddressBook:
+    tags:
+      - { name: 'jvh.auto_cleaning.member.task', priority: 0 }
+  JvH\JvHAutoCleaningBundle\FrontendUserCleaners\ProductMail:
+    tags:
+      - { name: 'jvh.auto_cleaning.member.task', priority: 0 }
+  JvH\JvHAutoCleaningBundle\FrontendUserCleaners\PuzzelCollection:
+    tags:
+      - { name: 'jvh.auto_cleaning.member.task', priority: 0 }
+  JvH\JvHAutoCleaningBundle\FrontendUserCleaners\Member:
+    tags:
+      - { name: 'jvh.auto_cleaning.member.task', priority: 999 }
+
+  JvH\JvHAutoCleaningBundle\EventListener\DataContainer\MemberLabelCallback:
+    tags:
+      - { name: 'contao.callback', table: 'tl_member', target: 'list.label.label' }
+  JvH\JvHAutoCleaningBundle\EventListener\KernelResponseListener:
+    tags:
+      - { name: 'kernel.event_listener', event: 'kernel.response' }
+  JvH\JvHAutoCleaningBundle\Cron\MarkMembersCron:
+    tags:
+      - { name: 'contao.cronjob', 'interval': 'hourly'}
+  JvH\JvHAutoCleaningBundle\Cron\CleanUpMarkedMembersCron:
+    tags:
+      - { name: 'contao.cronjob', 'interval': 'minutely' }
+  JvH\JvHAutoCleaningBundle\Cron\CleanUpIsoOrdersCron:
+    tags:
+      - { name: 'contao.cronjob', 'interval': 'minutely' }
+  JvH\JvHAutoCleaningBundle\Cron\CleanUpIsoPackagingSlipsCron:
+    tags:
+      - { name: 'contao.cronjob', 'interval': 'minutely' }
+  JvH\JvHAutoCleaningBundle\Cron\CleanUpIsoStockBookingsCron:
+    tags:
+      - { name: 'contao.cronjob', 'interval': 'minutely' }
+  JvH\JvHAutoCleaningBundle\Cron\IsoRuleSetExpiredCron:
+    tags:
+      - { name: 'contao.cronjob', 'interval': 'minutely' }

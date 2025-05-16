@@ -1,0 +1,20 @@
+{
+  "name":"jvh/auto-cleaning-bundle",
+  "description":"Jan van Haasteren Puzzel Auto Cleaning.",
+  "type": "contao-bundle",
+  "license":"AGPL-3.0-or-later",
+  "version": "1.0.0",
+  "require": {
+    "contao/core-bundle": "^4.13",
+    "isotope/isotope-core": "^2.8",
+    "jvh/puzzel-db-backend-bundle": "^1.0"
+  },
+  "extra": {
+    "contao-manager-plugin": "JvH\\JvHAutoCleaningBundle\\ContaoManager\\Plugin"
+  },
+  "autoload": {
+    "psr-4": {
+      "JvH\\JvHAutoCleaningBundle\\": "src/"
+    }
+  }
+}
