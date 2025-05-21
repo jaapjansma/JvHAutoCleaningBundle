@@ -13,15 +13,5 @@ class JvHAutoCleaningExtension extends Extension
     {
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
         $loader->load('services.yml');
-
-      $configuration = new Configuration();
-      $processedConfig = $this->processConfiguration($configuration, $configs);
-      $container->setParameter('jvh.auto_cleaning.max_member_autoclean_batch_size', $processedConfig['max_member_autoclean_batch_size']);
-      $container->setParameter('jvh.auto_cleaning.last_login_threshold', $processedConfig['last_login_threshold']);
-      $container->setParameter('jvh.auto_cleaning.grace_period', $processedConfig['grace_period']);
-      $container->setParameter('jvh.auto_cleaning.cronjob_batch_size', $processedConfig['cronjob_batch_size']);
-      $container->setParameter('jvh.auto_cleaning.iso_order_cleanup_after', $processedConfig['iso_order_cleanup_after']);
-      $container->setParameter('jvh.auto_cleaning.iso_packaging_slip_cleanup_after', $processedConfig['iso_packaging_slip_cleanup_after']);
-      $container->setParameter('jvh.auto_cleaning.iso_booking_cleanup_after', $processedConfig['iso_booking_cleanup_after']);
     }
 }

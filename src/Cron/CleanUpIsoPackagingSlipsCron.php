@@ -35,13 +35,16 @@ class CleanUpIsoPackagingSlipsCron {
   public function __construct(ContaoFramework $contaoFramework, ContainerInterface $container)
   {
     $contaoFramework->initialize();
-    $cleanupAfterInDays = $container->getParameter('jvh.auto_cleaning.iso_packaging_slip_cleanup_after');
-    $cleanupAfterInSeconds = $cleanupAfterInDays * 24 * 60 * 60;
+    $cleanupAfterInYears = $GLOBALS['TL_CONFIG']['jvh_auto_cleaning_packaging_slips_years_ago'] ?? 3;
+    $cleanupAfterInSeconds = $cleanupAfterInYears * 365 * 24 * 60 * 60;
     $this->timestamp = time() - $cleanupAfterInSeconds;
-    $this->batchSize = $container->getParameter('jvh.auto_cleaning.cronjob_batch_size');
+    $this->batchSize = $GLOBALS['TL_CONFIG']['jvh_auto_cleaning_batch_size'] ?? 100;
   }
 
   public function __invoke(): void {
+    if (empty($GLOBALS['TL_CONFIG']['jvh_auto_cleaning_enable_packaging_slips'])) {
+      return;
+    }
     $db = Database::getInstance();
     $packagingSlips = $db->prepare("SELECT `id` FROM `tl_isotope_packaging_slip` WHERE `member` = 0 AND `tstamp` < ? ORDER BY `tstamp` ASC")
       ->limit($this->batchSize)

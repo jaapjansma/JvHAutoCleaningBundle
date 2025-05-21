@@ -18,6 +18,8 @@
 
 $GLOBALS['NOTIFICATION_CENTER']['NOTIFICATION_TYPE']['tl_jvh_autoclean']['notify_account_expired']['recipients'] = array('recipient_email');
 $GLOBALS['NOTIFICATION_CENTER']['NOTIFICATION_TYPE']['tl_jvh_autoclean']['notify_account_expired']['email_text'] = array(
+  'grace_period',
+  'years_ago',
   'member_*', // All Member fields
 );
 $GLOBALS['NOTIFICATION_CENTER']['NOTIFICATION_TYPE']['tl_jvh_autoclean']['notify_account_expired']['email_subject'] = &$GLOBALS['NOTIFICATION_CENTER']['NOTIFICATION_TYPE']['tl_jvh_autoclean']['notify_account_expired']['email_text'];

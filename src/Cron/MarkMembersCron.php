@@ -36,6 +36,10 @@ class MarkMembersCron {
 
   private int $batchSize;
 
+  private int $lastLoginThresholdInYears;
+
+  private int $gracePeriodInDays;
+
   private ContaoFramework $framework;
 
   /**
@@ -45,17 +49,30 @@ class MarkMembersCron {
   public function __construct(ContaoFramework $contaoFramework, ContainerInterface $container) {
     $contaoFramework->initialize();
     $this->framework = $contaoFramework;
-    $this->max = $container->getParameter('jvh.auto_cleaning.max_member_autoclean_batch_size');
-    $lastLoginThresholdInDays = $container->getParameter('jvh.auto_cleaning.last_login_threshold');
-    $lastLoginThresholdInSeconds = $lastLoginThresholdInDays * 24 * 60 * 60;
+    $this->max = $GLOBALS['TL_CONFIG']['jvh_auto_cleaning_member_batch_size'] ?? 100;
+    $this->lastLoginThresholdInYears = $GLOBALS['TL_CONFIG']['jvh_auto_cleaning_member_years_ago'] ?? 3;
+    $lastLoginThresholdInSeconds = $this->lastLoginThresholdInYears * 365 * 24 * 60 * 60;
     $this->lastLoginTimestamp = time() - $lastLoginThresholdInSeconds;
-    $gracePeriodInDays = $container->getParameter('jvh.auto_cleaning.grace_period');
-    $this->gracePeriod = $gracePeriodInDays * 24 * 60 * 60;
-    $this->batchSize = $container->getParameter('jvh.auto_cleaning.cronjob_batch_size');
+    $this->gracePeriodInDays = $GLOBALS['TL_CONFIG']['jvh_auto_cleaning_member_grace_period'] ?? 14;
+    $this->gracePeriod = $this->gracePeriodInDays * 24 * 60 * 60;
+    $this->batchSize = $GLOBALS['TL_CONFIG']['jvh_auto_cleaning_batch_size'] ?? 100;
   }
 
   public function __invoke(): void
   {
+    $now = new \DateTime();
+    $today = new \DateTime();
+    $diff = $now->diff($today);
+    $seconds = $diff->format('%s');
+    if (empty($GLOBALS['TL_CONFIG']['jvh_auto_cleaning_enable_member'])) {
+      return;
+    }
+    if (!empty($GLOBALS['TL_CONFIG']['jvh_auto_cleaning_member_start_time']) && $GLOBALS['TL_CONFIG']['jvh_auto_cleaning_member_start_time'] > $seconds) {
+      return;
+    }
+    if (!empty($GLOBALS['TL_CONFIG']['jvh_auto_cleaning_member_end_time']) && $GLOBALS['TL_CONFIG']['jvh_auto_cleaning_member_end_time'] < $seconds) {
+      return;
+    }
     $currentMarkCount = $this->getCurrentMarkCount();
     $limit = $this->max - $currentMarkCount;
     $removeOn = time() + $this->gracePeriod;
@@ -102,6 +119,8 @@ class MarkMembersCron {
       $arrTokens = $this->flatten($v, 'member_' . $k, $arrTokens);
     }
     $arrTokens['recipient_email'] = $objMember->email;
+    $arrTokens['grace_period'] = $this->gracePeriod;
+    $arrTokens['years_ago'] = $this->lastLoginThresholdInYears;
     while ($notifications->next()) {
       $objNotification = $notifications->current();
       $objNotification->send($arrTokens, $GLOBALS['TL_LANGUAGE']);

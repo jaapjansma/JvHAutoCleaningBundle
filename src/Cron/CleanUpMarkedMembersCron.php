@@ -39,11 +39,14 @@ class CleanUpMarkedMembersCron {
   public function __construct(ContaoFramework $contaoFramework, ContainerInterface $container)
   {
     $contaoFramework->initialize();
-    $this->batchSize = $container->getParameter('jvh.auto_cleaning.cronjob_batch_size');
+    $this->batchSize = $GLOBALS['TL_CONFIG']['jvh_auto_cleaning_batch_size'] ?? 100;
     $this->factory = $container->get('jvh.auto_cleaning.member');
   }
 
   public function __invoke(): void {
+    if (empty($GLOBALS['TL_CONFIG']['jvh_auto_cleaning_enable_member'])) {
+      return;
+    }
     $db = Database::getInstance();
     $members = $db->prepare("SELECT * FROM `tl_member` WHERE `remove_on` < ? AND `marked_for_removal` = 1 ORDER BY `lastLogin` ASC")
       ->limit($this->batchSize)

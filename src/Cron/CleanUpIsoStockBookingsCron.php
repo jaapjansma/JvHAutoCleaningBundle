@@ -36,13 +36,16 @@ class CleanUpIsoStockBookingsCron {
   public function __construct(ContaoFramework $contaoFramework, ContainerInterface $container)
   {
     $contaoFramework->initialize();
-    $cleanupAfterInDays = $container->getParameter('jvh.auto_cleaning.iso_booking_cleanup_after');
-    $cleanupAfterInSeconds = $cleanupAfterInDays * 24 * 60 * 60;
+    $cleanupAfterInYears = $GLOBALS['TL_CONFIG']['jvh_auto_cleaning_bookings_years_ago'] ?? 3;
+    $cleanupAfterInSeconds = $cleanupAfterInYears * 365 * 24 * 60 * 60;
     $this->timestamp = time() - $cleanupAfterInSeconds;
-    $this->batchSize = $container->getParameter('jvh.auto_cleaning.cronjob_batch_size');
+    $this->batchSize = $GLOBALS['TL_CONFIG']['jvh_auto_cleaning_batch_size'] ?? 100;
   }
 
   public function __invoke(): void {
+    if (empty($GLOBALS['TL_CONFIG']['jvh_auto_cleaning_enable_compacting_of_bookings'])) {
+      return;
+    }
     $batchSize = $this->batchSize;
     $db = Database::getInstance();
     $years = $db->prepare("SELECT COUNT(*) as `total`, YEAR(FROM_UNIXTIME(`date`)) as `year`, `period_id`, `product_id` FROM `tl_isotope_stock_booking` WHERE `date` < ? AND `order_id` = 0 AND `packaging_slip_id` = 0 GROUP BY `year`, `product_id` HAVING `total` > 0 ORDER BY `year`, `product_id`, `period_id`")->execute([$this->timestamp]);

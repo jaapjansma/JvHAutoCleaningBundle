@@ -35,13 +35,16 @@ class CleanUpIsoOrdersCron {
   public function __construct(ContaoFramework $contaoFramework, ContainerInterface $container)
   {
     $contaoFramework->initialize();
-    $cleanupAfterInDays = $container->getParameter('jvh.auto_cleaning.iso_order_cleanup_after');
-    $cleanupAfterInSeconds = $cleanupAfterInDays * 24 * 60 * 60;
+    $cleanupAfterInYears = $GLOBALS['TL_CONFIG']['jvh_auto_cleaning_orders_years_ago'] ?? 3;
+    $cleanupAfterInSeconds = $cleanupAfterInYears * 365 * 24 * 60 * 60;
     $this->timestamp = time() - $cleanupAfterInSeconds;
-    $this->batchSize = $container->getParameter('jvh.auto_cleaning.cronjob_batch_size');
+    $this->batchSize = $GLOBALS['TL_CONFIG']['jvh_auto_cleaning_batch_size'] ?? 100;
   }
 
   public function __invoke(): void {
+    if (empty($GLOBALS['TL_CONFIG']['jvh_auto_cleaning_enable_orders'])) {
+      return;
+    }
     $db = Database::getInstance();
     $orders = $db->prepare("SELECT `id` FROM `tl_iso_product_collection` WHERE `type`  = 'order' AND `member` = 0 AND `tstamp` < ? ORDER BY `tstamp` ASC")
       ->limit($this->batchSize)
