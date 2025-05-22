@@ -20,7 +20,9 @@ namespace JvH\JvHAutoCleaningBundle\Cron;
 
 use Contao\CoreBundle\Framework\ContaoFramework;
 use Contao\Database;
-use Isotope\Model\ProductCollection;
+use Isotope\Isotope;
+use Isotope\Model\ProductCollection\Cart;
+use Isotope\Model\ProductCollection\Order;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 class CleanUpIsoOrdersCron {
 
@@ -45,16 +47,29 @@ class CleanUpIsoOrdersCron {
     if (empty($GLOBALS['TL_CONFIG']['jvh_auto_cleaning_enable_orders'])) {
       return;
     }
+    Isotope::initialize();
+    Isotope::setCart(new Cart());
     $db = Database::getInstance();
     $orders = $db->prepare("SELECT `id` FROM `tl_iso_product_collection` WHERE `type`  = 'order' AND `member` = 0 AND `tstamp` < ? ORDER BY `tstamp` ASC")
       ->limit($this->batchSize)
       ->execute([$this->timestamp]);
     while($order = $orders->fetchAssoc()) {
-      $objOrder = ProductCollection::findByPk($order['id']);
+      $objOrder = Order::findByPk($order['id']);
       if ($objOrder) {
         $db->prepare("UPDATE `tl_isotope_packaging_slip_product_collection` SET `document_number` = '' WHERE `document_number` = ?")->execute([$objOrder->document_number]);
         $db->prepare("UPDATE `tl_isotope_stock_booking` SET `order_id` = 0 WHERE `order_id` = ?")->execute([$objOrder->id]);
+        $db->prepare("DELETE FROM tl_iso_rule_usage WHERE order_id=?")->execute([$objOrder->id]);
+
+        $currentHooks = $GLOBALS['ISO_HOOKS']['postDeleteCollection'];
+        foreach ($GLOBALS['ISO_HOOKS']['postDeleteCollection'] as $index => $callback) {
+          if (isset($callback[0]) && $callback[0] == 'Isotope\Rules') {
+            unset($GLOBALS['ISO_HOOKS']['postDeleteCollection'][$index]);
+          }
+        }
+
         $objOrder->delete(TRUE);
+
+        $GLOBALS['ISO_HOOKS']['postDeleteCollection'] = $currentHooks;
       }
     }
   }

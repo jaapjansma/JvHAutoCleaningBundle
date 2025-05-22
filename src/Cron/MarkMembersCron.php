@@ -62,8 +62,13 @@ class MarkMembersCron {
   {
     $now = new \DateTime();
     $today = new \DateTime();
-    $diff = $now->diff($today);
-    $seconds = $diff->format('%s');
+    $today->setTime(0,0);
+    // Calculate seconds since start of the day.
+    // Also substruct an hour because the start and end time have an hour difference.
+    $seconds = $now->getTimestamp() - $today->getTimestamp() - 3600;
+    if ($seconds < 0) {
+      $seconds = 0;
+    }
     if (empty($GLOBALS['TL_CONFIG']['jvh_auto_cleaning_enable_member'])) {
       return;
     }
