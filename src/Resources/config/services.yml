@@ -35,18 +35,34 @@ services:
     tags:
       - { name: 'kernel.event_listener', event: 'kernel.response' }
   JvH\JvHAutoCleaningBundle\Cron\MarkMembersCron:
+    arguments:
+      - '@contao.framework'
+      - '@monolog.logger.contao.cron'
     tags:
       - { name: 'contao.cronjob', 'interval': 'minutely'}
   JvH\JvHAutoCleaningBundle\Cron\CleanUpMarkedMembersCron:
+    arguments:
+      - '@contao.framework'
+      - '@jvh.auto_cleaning.member'
+      - '@monolog.logger.contao.cron'
     tags:
       - { name: 'contao.cronjob', 'interval': 'minutely' }
   JvH\JvHAutoCleaningBundle\Cron\CleanUpIsoOrdersCron:
+    arguments:
+      - '@contao.framework'
+      - '@monolog.logger.contao.cron'
     tags:
       - { name: 'contao.cronjob', 'interval': 'minutely' }
   JvH\JvHAutoCleaningBundle\Cron\CleanUpIsoPackagingSlipsCron:
+    arguments:
+      - '@contao.framework'
+      - '@monolog.logger.contao.cron'
     tags:
       - { name: 'contao.cronjob', 'interval': 'minutely' }
   JvH\JvHAutoCleaningBundle\Cron\CleanUpIsoStockBookingsCron:
+    arguments:
+      - '@contao.framework'
+      - '@monolog.logger.contao.cron'
     tags:
       - { name: 'contao.cronjob', 'interval': 'minutely' }
   JvH\JvHAutoCleaningBundle\Cron\IsoRuleSetExpiredCron:

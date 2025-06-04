@@ -23,24 +23,28 @@ use Contao\Database;
 use Isotope\Isotope;
 use Isotope\Model\ProductCollection\Cart;
 use Isotope\Model\ProductCollection\Order;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 class CleanUpIsoOrdersCron {
 
   private int $timestamp;
 
   private int $batchSize;
 
+  private LoggerInterface $logger;
+
   /**
    * @param ContaoFramework $contaoFramework
-   * @param ContainerInterface $container
+   * @param LoggerInterface|null $logger
    */
-  public function __construct(ContaoFramework $contaoFramework, ContainerInterface $container)
+  public function __construct(ContaoFramework $contaoFramework, LoggerInterface $logger = null)
   {
     $contaoFramework->initialize();
     $cleanupAfterInYears = $GLOBALS['TL_CONFIG']['jvh_auto_cleaning_orders_years_ago'] ?? 3;
     $cleanupAfterInSeconds = $cleanupAfterInYears * 365 * 24 * 60 * 60;
     $this->timestamp = time() - $cleanupAfterInSeconds;
     $this->batchSize = $GLOBALS['TL_CONFIG']['jvh_auto_cleaning_batch_size'] ?? 100;
+    $this->logger = $logger ?? new NullLogger();
   }
 
   public function __invoke(): void {

@@ -21,24 +21,28 @@ namespace JvH\JvHAutoCleaningBundle\Cron;
 use Contao\CoreBundle\Framework\ContaoFramework;
 use Contao\Database;
 use Krabo\IsotopePackagingSlipBundle\Model\IsotopePackagingSlipModel;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 class CleanUpIsoPackagingSlipsCron {
 
   private int $timestamp;
 
   private int $batchSize;
 
+  private LoggerInterface $logger;
+
   /**
    * @param ContaoFramework $contaoFramework
-   * @param ContainerInterface $container
+   * @param LoggerInterface|null $logger
    */
-  public function __construct(ContaoFramework $contaoFramework, ContainerInterface $container)
+  public function __construct(ContaoFramework $contaoFramework, LoggerInterface $logger = null)
   {
     $contaoFramework->initialize();
     $cleanupAfterInYears = $GLOBALS['TL_CONFIG']['jvh_auto_cleaning_packaging_slips_years_ago'] ?? 3;
     $cleanupAfterInSeconds = $cleanupAfterInYears * 365 * 24 * 60 * 60;
     $this->timestamp = time() - $cleanupAfterInSeconds;
     $this->batchSize = $GLOBALS['TL_CONFIG']['jvh_auto_cleaning_batch_size'] ?? 100;
+    $this->logger = $logger ?? new NullLogger();
   }
 
   public function __invoke(): void {
@@ -56,6 +60,7 @@ class CleanUpIsoPackagingSlipsCron {
         $db->prepare("DELETE FROM `tl_isotope_packaging_slip_mail_message` WHERE `pid` = ?")->execute([$objPackagingSlip->id]);
         $db->prepare("DELETE FROM `tl_isotope_packaging_slip_product_collection` WHERE `pid` = ?")->execute([$objPackagingSlip->id]);
         $objPackagingSlip->delete();
+        $this->logger->info('Delete packaging slip with' . $objPackagingSlip->id . ' and document number '.$objPackagingSlip->document_number);
       }
     }
   }

@@ -22,24 +22,28 @@ use Contao\CoreBundle\Framework\ContaoFramework;
 use Contao\Database;
 use Krabo\IsotopeStockBundle\Model\BookingLineModel;
 use Krabo\IsotopeStockBundle\Model\BookingModel;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 class CleanUpIsoStockBookingsCron {
 
   private int $timestamp;
 
   private int $batchSize;
 
+  protected LoggerInterface $logger;
+
   /**
    * @param ContaoFramework $contaoFramework
-   * @param ContainerInterface $container
+   * @param LoggerInterface|null $logger
    */
-  public function __construct(ContaoFramework $contaoFramework, ContainerInterface $container)
+  public function __construct(ContaoFramework $contaoFramework, LoggerInterface $logger = null)
   {
     $contaoFramework->initialize();
     $cleanupAfterInYears = $GLOBALS['TL_CONFIG']['jvh_auto_cleaning_bookings_years_ago'] ?? 3;
     $cleanupAfterInSeconds = $cleanupAfterInYears * 365 * 24 * 60 * 60;
     $this->timestamp = time() - $cleanupAfterInSeconds;
     $this->batchSize = $GLOBALS['TL_CONFIG']['jvh_auto_cleaning_batch_size'] ?? 100;
+    $this->logger = $logger ?? new NullLogger();
   }
 
   public function __invoke(): void {
@@ -95,6 +99,7 @@ class CleanUpIsoStockBookingsCron {
               $bookingLine->save();
             }
           }
+          $this->logger->info('Created merged booking with id ' . $b->id);
         }
       }
     }
@@ -103,6 +108,7 @@ class CleanUpIsoStockBookingsCron {
       $db->prepare("DELETE FROM `tl_isotope_stock_booking_event` WHERE `booking_id` = ?")->execute([$bookingId]);
       $db->prepare("DELETE FROM `tl_isotope_stock_booking_line` WHERE `pid` = ?")->execute([$bookingId]);
       $db->prepare("DELETE FROM `tl_isotope_stock_booking` WHERE `id` = ?")->execute([$bookingId]);
+      $this->logger->info('Removed booking with id ' . $bookingId);
     }
   }
 

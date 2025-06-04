@@ -25,6 +25,8 @@ use Contao\MemberModel;
 use Contao\StringUtil;
 use Contao\System;
 use NotificationCenter\Model\Notification;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class MarkMembersCron {
@@ -42,12 +44,15 @@ class MarkMembersCron {
 
   private ContaoFramework $framework;
 
+  private LoggerInterface $logger;
+
   /**
    * @param ContaoFramework $contaoFramework
-   * @param ContainerInterface $container
+   * @param LoggerInterface|null $logger
    */
-  public function __construct(ContaoFramework $contaoFramework, ContainerInterface $container) {
+  public function __construct(ContaoFramework $contaoFramework, LoggerInterface $logger = null) {
     $contaoFramework->initialize();
+    $this->logger = $logger ?? new NullLogger();
     $this->framework = $contaoFramework;
     $this->max = $GLOBALS['TL_CONFIG']['jvh_auto_cleaning_member_batch_size'] ?? 100;
     $this->lastLoginThresholdInYears = $GLOBALS['TL_CONFIG']['jvh_auto_cleaning_member_years_ago'] ?? 3;
@@ -89,7 +94,7 @@ class MarkMembersCron {
       $objNotificationCollection = Notification::findByType('notify_account_expired');
 
       $db = Database::getInstance();
-      $members = $db->prepare("SELECT * FROM `tl_member` WHERE `lastLogin` < ? AND (`marked_for_removal` IS NULL OR `marked_for_removal` = 0) ORDER BY `lastLogin` ASC")
+      $members = $db->prepare("SELECT * FROM `tl_member` WHERE `lastLogin` < ? AND (`marked_for_removal` IS NULL OR `marked_for_removal` = 0) ORDER BY `lastLogin` ASC, `dateAdded` ASC, `id` ASC")
         ->limit($limit)
         ->execute([$this->lastLoginTimestamp]);
       while($member = $members->fetchAssoc()) {
@@ -98,6 +103,7 @@ class MarkMembersCron {
           $this->notifyMember($member['id'], $objNotificationCollection);
         }
         $db->prepare("UPDATE `tl_member` SET `marked_for_removal` = '1', `removal_reminder_send` = UNIX_TIMESTAMP(), `remove_on` = ? WHERE `id` = ?")->execute([$removeOn, $member['id']]);
+        $this->logger->info('Marked member with id ' . $member['id'] . ' and username ' .  $member['username'] . ' for removal.');
       }
     }
   }

@@ -21,7 +21,8 @@ namespace JvH\JvHAutoCleaningBundle\Cron;
 use Contao\CoreBundle\Framework\ContaoFramework;
 use Contao\Database;
 use Jvh\JvHAutoCleaningBundle\Factory\FrontendUserAutoCleanFactory;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 class CleanUpMarkedMembersCron {
 
@@ -32,15 +33,19 @@ class CleanUpMarkedMembersCron {
    */
   private FrontendUserAutoCleanFactory $factory;
 
+  private LoggerInterface $logger;
+
   /**
    * @param ContaoFramework $contaoFramework
-   * @param ContainerInterface $container
+   * @param FrontendUserAutoCleanFactory $factory
+   * @param LoggerInterface|null $logger
    */
-  public function __construct(ContaoFramework $contaoFramework, ContainerInterface $container)
+  public function __construct(ContaoFramework $contaoFramework, FrontendUserAutoCleanFactory $factory, LoggerInterface $logger = null)
   {
     $contaoFramework->initialize();
     $this->batchSize = $GLOBALS['TL_CONFIG']['jvh_auto_cleaning_batch_size'] ?? 100;
-    $this->factory = $container->get('jvh.auto_cleaning.member');
+    $this->factory = $factory;
+    $this->logger = $logger ?? new NullLogger();
   }
 
   public function __invoke(): void {
@@ -53,6 +58,7 @@ class CleanUpMarkedMembersCron {
       ->execute([time()]);
     while($member = $members->fetchAssoc()) {
       $this->factory->cleanupMember($member['id']);
+      $this->logger->info('Removed member with id ' . $member['id'] . ' and username ' .  $member['username']);
     }
   }
 
