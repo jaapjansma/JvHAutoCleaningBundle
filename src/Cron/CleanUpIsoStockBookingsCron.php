@@ -52,7 +52,7 @@ class CleanUpIsoStockBookingsCron {
     }
     $batchSize = $this->batchSize;
     $db = Database::getInstance();
-    $years = $db->prepare("SELECT COUNT(*) as `total`, YEAR(FROM_UNIXTIME(`date`)) as `year`, `period_id`, `product_id` FROM `tl_isotope_stock_booking` WHERE `date` < ? AND `order_id` = 0 AND `packaging_slip_id` = 0 GROUP BY `year`, `product_id` HAVING `total` > 0 ORDER BY `year`, `product_id`, `period_id`")->execute([$this->timestamp]);
+    $years = $db->prepare("SELECT COUNT(*) as `total`, YEAR(FROM_UNIXTIME(`date`)) as `year`, `period_id`, `product_id` FROM `tl_isotope_stock_booking` WHERE `date` < ? AND `order_id` = 0 AND `packaging_slip_id` = 0 AND `type` != ? AND product_id = 467 GROUP BY `year`, `product_id` HAVING `total` > 0 ORDER BY `year`, `product_id`, `period_id`")->execute([$this->timestamp, BookingModel::ARCHIVE_TYPE]);
     $mergedBookings = [];
     $bookingIdsToDelete = [];
     while(($year = $years->fetchAssoc()) && $batchSize > 0) {
@@ -87,8 +87,11 @@ class CleanUpIsoStockBookingsCron {
           $b->date = strtotime($year . '-01-01');
           $b->period_id = $period;
           $b->product_id = $product_id;
-          $b->type_id = 0;
+          $b->type = BookingModel::ARCHIVE_TYPE;
+          $b->is_in_balance = 1;
           $b->save();
+          $debit = 0;
+          $credit = 0;
           foreach ($accounts as $account_id => $account) {
             if ($account['debit'] > 0 || $account['credit'] > 0) {
               $bookingLine = new BookingLineModel();
@@ -97,7 +100,13 @@ class CleanUpIsoStockBookingsCron {
               $bookingLine->account = $account_id;
               $bookingLine->pid = $b->id;
               $bookingLine->save();
+              $debit += $account['debit'];
+              $credit += $account['credit'];
             }
+          }
+          if ($debit != $credit) {
+            $b->is_in_balance = 0;
+            $b->save();
           }
           $this->logger->info('Created merged booking with id ' . $b->id);
         }

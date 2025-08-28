@@ -63,6 +63,7 @@ class CleanUpIsoOrdersCron {
         $db->prepare("UPDATE `tl_isotope_packaging_slip_product_collection` SET `document_number` = '' WHERE `document_number` = ?")->execute([$objOrder->document_number]);
         $db->prepare("UPDATE `tl_isotope_stock_booking` SET `order_id` = 0 WHERE `order_id` = ?")->execute([$objOrder->id]);
         $db->prepare("DELETE FROM tl_iso_rule_usage WHERE order_id=?")->execute([$objOrder->id]);
+        $orderId = $objOrder->id;
 
         $currentHooks = $GLOBALS['ISO_HOOKS']['postDeleteCollection'];
         foreach ($GLOBALS['ISO_HOOKS']['postDeleteCollection'] as $index => $callback) {
@@ -72,6 +73,8 @@ class CleanUpIsoOrdersCron {
         }
 
         $objOrder->delete(TRUE);
+
+        $this->logger->info('Removed order with document number: '. $objOrder->document_number . ' and id: ' . $orderId);
 
         $GLOBALS['ISO_HOOKS']['postDeleteCollection'] = $currentHooks;
       }
