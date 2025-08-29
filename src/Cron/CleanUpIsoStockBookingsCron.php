@@ -52,7 +52,7 @@ class CleanUpIsoStockBookingsCron {
     }
     $batchSize = $this->batchSize;
     $db = Database::getInstance();
-    $years = $db->prepare("SELECT COUNT(*) as `total`, YEAR(FROM_UNIXTIME(`date`)) as `year`, `period_id`, `product_id` FROM `tl_isotope_stock_booking` WHERE `date` < ? AND `order_id` = 0 AND `packaging_slip_id` = 0 AND `type` != ? AND product_id = 467 GROUP BY `year`, `product_id` HAVING `total` > 0 ORDER BY `year`, `product_id`, `period_id`")->execute([$this->timestamp, BookingModel::ARCHIVE_TYPE]);
+    $years = $db->prepare("SELECT COUNT(*) as `total`, YEAR(FROM_UNIXTIME(`date`)) as `year`, `period_id`, `product_id` FROM `tl_isotope_stock_booking` WHERE `date` < ? AND `order_id` = 0 AND `packaging_slip_id` = 0 AND `type` != ? GROUP BY `year`, `product_id` HAVING `total` > 0 ORDER BY `year`, `product_id`, `period_id`")->execute([$this->timestamp, BookingModel::ARCHIVE_TYPE]);
     $mergedBookings = [];
     $bookingIdsToDelete = [];
     while(($year = $years->fetchAssoc()) && $batchSize > 0) {
