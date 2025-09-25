@@ -50,7 +50,7 @@ class CleanUpIsoPackagingSlipsCron {
       return;
     }
     $db = Database::getInstance();
-    $packagingSlips = $db->prepare("SELECT `id` FROM `tl_isotope_packaging_slip` WHERE `member` = 0 AND `date` < ? ORDER BY `tstamp` ASC")
+    $packagingSlips = $db->prepare("SELECT `id` FROM `tl_isotope_packaging_slip` WHERE `member` = 0 AND `date` < ? ORDER BY `date` ASC")
       ->limit($this->batchSize)
       ->execute([$this->timestamp]);
     while($packagingSlip = $packagingSlips->fetchAssoc()) {

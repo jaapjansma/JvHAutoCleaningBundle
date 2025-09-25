@@ -94,7 +94,7 @@ class MarkMembersCron {
       $objNotificationCollection = Notification::findByType('notify_account_expired');
 
       $db = Database::getInstance();
-      $members = $db->prepare("SELECT * FROM `tl_member` WHERE `lastLogin` < ? AND (`marked_for_removal` IS NULL OR `marked_for_removal` = 0) ORDER BY `lastLogin` ASC, `dateAdded` ASC, `id` ASC")
+      $members = $db->prepare("SELECT * FROM `tl_member` WHERE `lastLogin` < ? AND (`marked_for_removal` IS NULL OR `marked_for_removal` = 0) ORDER BY `currentLogin` ASC, `dateAdded` ASC, `id` ASC")
         ->limit($limit)
         ->execute([$this->lastLoginTimestamp]);
       while($member = $members->fetchAssoc()) {

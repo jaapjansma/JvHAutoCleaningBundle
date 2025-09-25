@@ -53,7 +53,7 @@ class CleanUpMarkedMembersCron {
       return;
     }
     $db = Database::getInstance();
-    $members = $db->prepare("SELECT * FROM `tl_member` WHERE `remove_on` < ? AND `marked_for_removal` = 1 ORDER BY `lastLogin` ASC")
+    $members = $db->prepare("SELECT * FROM `tl_member` WHERE `remove_on` < ? AND `marked_for_removal` = 1 ORDER BY `currentLogin` ASC")
       ->limit($this->batchSize)
       ->execute([time()]);
     while($member = $members->fetchAssoc()) {
