@@ -69,7 +69,7 @@ class CleanUpMarkedMembersCron {
       $this->logger->info('Removed member with id ' . $member['id'] . ' and username ' .  $member['username']);
     }
 
-    $members = $db->prepare("SELECT * FROM `tl_member` WHERE `lastLogin` = 0 AND `dateAdded` < ? ORDER BY `dateAdded` ASC")
+    $members = $db->prepare("SELECT * FROM `tl_member` WHERE `currentLogin` = 0 AND `dateAdded` < ? ORDER BY `dateAdded` ASC")
       ->limit($this->batchSize)
       ->execute([$this->lastCreatedDateForNeverLogin]);
     while($member = $members->fetchAssoc()) {
