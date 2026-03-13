@@ -19,6 +19,7 @@
 $GLOBALS['TL_LANG']['tl_settings']['jvh_auto_cleaning_legend'] = 'JvH Automatisch opschonen';
 $GLOBALS['TL_LANG']['tl_settings']['jvh_auto_cleaning_enable_member'] = ['Inschakelen automatisch opschonen van leden', ''];
 $GLOBALS['TL_LANG']['tl_settings']['jvh_auto_cleaning_member_years_ago'] = ['Verwijderen na x jaren niet ingelogd', 'In jaren'];
+$GLOBALS['TL_LANG']['tl_settings']['jvh_auto_cleaning_member_never_logged_in_months_ago'] = ['Verwijderen (nooit ingelogde) na x maanden aangemaakt', 'In maanden'];
 $GLOBALS['TL_LANG']['tl_settings']['jvh_auto_cleaning_member_grace_period'] = ['Periode waarin de gebruiker nog kan inloggen', 'In dagen.'];
 $GLOBALS['TL_LANG']['tl_settings']['jvh_auto_cleaning_member_batch_size'] = ['Aantal leden op de lijst om verwijderd te worden', ''];
 $GLOBALS['TL_LANG']['tl_settings']['jvh_auto_cleaning_member_start_time'] = ['Stuur herinnering naar leden vanaf deze tijd', ''];

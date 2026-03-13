@@ -36,6 +36,10 @@ $GLOBALS['TL_DCA']['tl_settings']['fields']['jvh_auto_cleaning_member_years_ago'
   'inputType'               => 'text',
   'eval'                    => array('tl_class'=>'w50 clr', 'rgxp'=>'natural', 'mandatory' => true)
 ];
+$GLOBALS['TL_DCA']['tl_settings']['fields']['jvh_auto_cleaning_member_never_logged_in_months_ago'] = [
+  'inputType'               => 'text',
+  'eval'                    => array('tl_class'=>'w50 clr', 'rgxp'=>'natural', 'mandatory' => true)
+];
 $GLOBALS['TL_DCA']['tl_settings']['fields']['jvh_auto_cleaning_member_grace_period'] = [
   'inputType'               => 'text',
   'eval'                    => array('tl_class'=>'w50 clr', 'rgxp'=>'natural', 'mandatory' => true)
@@ -88,6 +92,7 @@ $GLOBALS['TL_DCA']['tl_settings']['palettes']['__selector__'][] = 'jvh_auto_clea
   ->applyToPalette('default', 'tl_settings');
 \Contao\CoreBundle\DataContainer\PaletteManipulator::create()
   ->addField('jvh_auto_cleaning_member_years_ago')
+  ->addField('jvh_auto_cleaning_member_never_logged_in_months_ago')
   ->addField('jvh_auto_cleaning_member_grace_period')
   ->addField('jvh_auto_cleaning_member_batch_size')
   ->addField('jvh_auto_cleaning_member_start_time')

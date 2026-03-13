@@ -19,6 +19,7 @@
 $GLOBALS['TL_LANG']['tl_settings']['jvh_auto_cleaning_legend'] = 'JvH Auto Cleaning';
 $GLOBALS['TL_LANG']['tl_settings']['jvh_auto_cleaning_enable_member'] = ['Enable auto cleaning of members', ''];
 $GLOBALS['TL_LANG']['tl_settings']['jvh_auto_cleaning_member_years_ago'] = ['Clean after x years not logged in', 'In years'];
+$GLOBALS['TL_LANG']['tl_settings']['jvh_auto_cleaning_member_never_logged_in_months_ago'] = ['Clean up (never logged in) after x months', 'In months'];
 $GLOBALS['TL_LANG']['tl_settings']['jvh_auto_cleaning_member_grace_period'] = ['Grace period in which the user can login and keep his or her account', 'In days.'];
 $GLOBALS['TL_LANG']['tl_settings']['jvh_auto_cleaning_member_batch_size'] = ['Size of list of members marked to be removed', ''];
 $GLOBALS['TL_LANG']['tl_settings']['jvh_auto_cleaning_member_start_time'] = ['Send reminders from this time of the day', ''];

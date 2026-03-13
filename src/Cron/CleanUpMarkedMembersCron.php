@@ -28,6 +28,10 @@ class CleanUpMarkedMembersCron {
 
   private int $batchSize;
 
+  private int $neverLoginThresholdInMonths;
+
+  private int $lastCreatedDateForNeverLogin;
+
   /**
    * @var FrontendUserAutoCleanFactory
    */
@@ -44,6 +48,10 @@ class CleanUpMarkedMembersCron {
   {
     $contaoFramework->initialize();
     $this->batchSize = $GLOBALS['TL_CONFIG']['jvh_auto_cleaning_batch_size'] ?? 100;
+    $this->neverLoginThresholdInMonths = $GLOBALS['TL_CONFIG']['jvh_auto_cleaning_member_never_logged_in_months_ago'] ?? 3;
+    $date = new \DateTime();
+    $date->modify('-' . $this->neverLoginThresholdInMonths . ' months');
+    $this->lastCreatedDateForNeverLogin = $date->getTimestamp();
     $this->factory = $factory;
     $this->logger = $logger ?? new NullLogger();
   }
@@ -59,6 +67,14 @@ class CleanUpMarkedMembersCron {
     while($member = $members->fetchAssoc()) {
       $this->factory->cleanupMember($member['id']);
       $this->logger->info('Removed member with id ' . $member['id'] . ' and username ' .  $member['username']);
+    }
+
+    $members = $db->prepare("SELECT * FROM `tl_member` WHERE `lastLogin` = 0 AND `dateAdded` < ? ORDER BY `dateAdded` ASC")
+      ->limit($this->batchSize)
+      ->execute([$this->lastCreatedDateForNeverLogin]);
+    while($member = $members->fetchAssoc()) {
+      $this->factory->cleanupMember($member['id']);
+      $this->logger->info('Removed member, who never loggedin, with id ' . $member['id'] . ' and username ' .  $member['username']);
     }
   }
 
