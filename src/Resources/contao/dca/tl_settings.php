@@ -77,33 +77,21 @@ $GLOBALS['TL_DCA']['tl_settings']['subpalettes']['jvh_auto_cleaning_enable_membe
 $GLOBALS['TL_DCA']['tl_settings']['subpalettes']['jvh_auto_cleaning_enable_orders'] = '';
 $GLOBALS['TL_DCA']['tl_settings']['subpalettes']['jvh_auto_cleaning_enable_packaging_slips'] = '';
 $GLOBALS['TL_DCA']['tl_settings']['subpalettes']['jvh_auto_cleaning_enable_compacting_of_bookings'] = '';
-$GLOBALS['TL_DCA']['tl_settings']['palettes']['__selector__'][] = 'jvh_auto_cleaning_enable_member';
-$GLOBALS['TL_DCA']['tl_settings']['palettes']['__selector__'][] = 'jvh_auto_cleaning_enable_orders';
-$GLOBALS['TL_DCA']['tl_settings']['palettes']['__selector__'][] = 'jvh_auto_cleaning_enable_packaging_slips';
-$GLOBALS['TL_DCA']['tl_settings']['palettes']['__selector__'][] = 'jvh_auto_cleaning_enable_compacting_of_bookings';
 
 \Contao\CoreBundle\DataContainer\PaletteManipulator::create()
   ->addLegend('jvh_auto_cleaning_legend')
   ->addField('jvh_auto_cleaning_enable_member')
-  ->addField('jvh_auto_cleaning_enable_orders')
-  ->addField('jvh_auto_cleaning_enable_packaging_slips')
-  ->addField('jvh_auto_cleaning_enable_compacting_of_bookings')
-  ->addField('jvh_auto_cleaning_batch_size')
-  ->applyToPalette('default', 'tl_settings');
-\Contao\CoreBundle\DataContainer\PaletteManipulator::create()
   ->addField('jvh_auto_cleaning_member_years_ago')
   ->addField('jvh_auto_cleaning_member_never_logged_in_months_ago')
   ->addField('jvh_auto_cleaning_member_grace_period')
   ->addField('jvh_auto_cleaning_member_batch_size')
   ->addField('jvh_auto_cleaning_member_start_time')
   ->addField('jvh_auto_cleaning_member_end_time')
-  ->applyToSubpalette('jvh_auto_cleaning_enable_member', 'tl_settings');
-\Contao\CoreBundle\DataContainer\PaletteManipulator::create()
+  ->addField('jvh_auto_cleaning_enable_orders')
   ->addField('jvh_auto_cleaning_orders_years_ago')
-  ->applyToSubpalette('jvh_auto_cleaning_enable_orders', 'tl_settings');
-\Contao\CoreBundle\DataContainer\PaletteManipulator::create()
+  ->addField('jvh_auto_cleaning_enable_packaging_slips')
   ->addField('jvh_auto_cleaning_packaging_slips_years_ago')
-  ->applyToSubpalette('jvh_auto_cleaning_enable_packaging_slips', 'tl_settings');
-\Contao\CoreBundle\DataContainer\PaletteManipulator::create()
+  ->addField('jvh_auto_cleaning_enable_compacting_of_bookings')
   ->addField('jvh_auto_cleaning_bookings_years_ago')
-  ->applyToSubpalette('jvh_auto_cleaning_enable_compacting_of_bookings', 'tl_settings');
+  ->addField('jvh_auto_cleaning_batch_size')
+  ->applyToPalette('default', 'tl_settings');
